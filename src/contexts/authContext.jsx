@@ -1,6 +1,5 @@
-import axios from "axios";
 import { createContext, useState, useEffect, useContext } from "react";
-
+import axios from "../api/axios";
 
 const AuthContext = createContext()
 
@@ -9,20 +8,32 @@ export function useAuth() {
 }
 export default function AuthContextProvider({ children }){
     const [loading, setLoading] = useState(false)
+    const [auth, setAuth] = useState({})
+
     function register(email, password){
-        axios.post("http://localhost:8000/api/u/", {
+        return axios.post("/u", {
             email,
             password
-        }).then(res => {
-            console.log(res)
-        }).catch(err => {
-            console.log(err)
         })
     }
 
+    function login(email, password){
+        return axios.post("/u/login", {
+            email,
+            password
+        }, {
+            headers: {
+                "Content-Type": "Application/json",
+            },
+            withCredentials: true
+        })
+    }
 
     const value = {
-        register
+        register,
+        login,
+        auth,
+        setAuth
     }
     return <AuthContext.Provider value={value}>
         {!loading && children}

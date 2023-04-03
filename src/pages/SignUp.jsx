@@ -1,8 +1,15 @@
 import { Formik } from "formik";
+import { useState } from "react";
 import { useAuth } from "../contexts/authContext";
+import { redirect } from "react-router-dom";
 
 export default function SignUp(){
+    const [success, setSuccess] = useState("")
+    const [submitionError, setSubmitionError] = useState("")
+
     const { register } = useAuth()
+
+    document.title = "Sign Up - Colrs Kaam"
     
     return <div className="mt-8">
     <Formik
@@ -26,7 +33,19 @@ export default function SignUp(){
         return errors;
       }}
       onSubmit={(values, { setSubmitting }) => {
-        register(values.email, values.password)
+        register(values.email, values.password).then(response => {
+            if(response.status === 201){
+                setSuccess("Account Created Successfully!")
+                setTimeout(() => {
+                  redirect("/login")
+                }, 1500)
+            }
+            if(response.status === 400){
+
+            }
+        }).catch(err => {
+            setSubmitionError("Failed to Create Account. Please try again later")
+        })
         setSubmitting(false); 
       }}
     >
@@ -43,6 +62,8 @@ export default function SignUp(){
         <form onSubmit={handleSubmit} className="w-full flex flex-col justify-center items-center h-max">
             <div className="w-[35%]">
                 <h1 className="text-3xl text-center font-semibold">Sign Up</h1>
+                <p className="text-center text-[#00ff00]">{success.length > 0 && success}</p>
+                <p className="text-center text-[red]">{submitionError.length > 0 && setSubmitionError}</p>
           <div className="my-4">
             <input
             className={`block border font-inter border-slate-400 rounded h-12 w-full px-2 py-1 font-medium ${errors.email != undefined && touched.email && "border-[red]"}`}
@@ -71,7 +92,6 @@ export default function SignUp(){
             Submit
           </button>
           </div>
-          {values.password}
         </form>
       )}
     </Formik>
